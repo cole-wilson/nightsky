@@ -252,6 +252,7 @@ function bvColor(index) {
 }
 function useHash() {
 	hash = window.location.hash.slice(1).split(":");
+	if (hash.length < 3) return
 	view.phi = parseFloat(hash[0]);
 	view.theta = parseFloat(hash[1]);
 	view.zoom = parseFloat(hash[2]);
