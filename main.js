@@ -93,7 +93,7 @@ function projectAltAz(alt, az) {
 }
 
 async function loadData() {
-	data = await (await fetch("./data/out.json")).json();
+	data = await (await fetch("./data/out6.5.json")).json();
 	names = await (await fetch("./data/names.json")).json();
 	requestAnimationFrame(draw)
 }
