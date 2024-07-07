@@ -1,3 +1,6 @@
+/**
+ * HUGE thanks to https://stjarnhimlen.se/comp/ppcomp.html for all of the math in this file
+ */
 let pi = Math.PI;
 
 function getOrbitalParameters(body, jd) {
@@ -232,8 +235,14 @@ function calculateKeplarianRaDec(body, d) {
     let ye = yg * cos(ecl) - zg * sin(ecl)
     let ze = yg * sin(ecl) + zg * cos(ecl)
 
-	let RA  = atan2( ye, xe )
-    let Dec = atan2( ze, sqrt(xe*xe+ye*ye) )
+	var RA  = atan2( ye, xe )
+    var Dec = atan2( ze, sqrt(xe*xe+ye*ye) )
+
+	// if (body == 'moon') {
+	// 	let mpar = asin( 1/r );
+	// 	let gclat = lat - 0.1924 * sin(2*lat)
+    	// let rho   = 0.99833 + 0.00167 * cos(2*lat)
+	// }
 
 	return {ra:{deg:RA, rad:(pi/180)*RA}, dec:{deg:Dec, rad:(pi/180)*Dec}}
 }
@@ -241,4 +250,5 @@ function calculateKeplarianRaDec(body, d) {
 function sin(degrees) {return Math.sin((pi/180) * degrees);}
 function cos(degrees) {return Math.cos((pi/180) * degrees);}
 function sqrt(x) {return Math.sqrt(x);}
-function atan2(degrees1, degrees2) {return (180/pi) * Math.atan2((pi/180) * degrees1, (pi/180) * degrees2);}
+function atan2(b, a) {return (180/pi) * Math.atan2(b, a);}
+function asin(a) {return (180/pi) * Math.asin(a);}
