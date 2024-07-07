@@ -1,6 +1,6 @@
-let data, names;
+let data, bigdata, names;
 let geolocation = JSON.parse(localStorage.getItem("geo")) || {lat: 0, lon: 0};
-let view = {zoom: 160, phi: 0, theta: 0};
+let view = {zoom: window.innerHeight/2, phi: 0, theta: 0};
 var lastdrag = {};
 var dragging = false;
 var moved = false;
@@ -38,7 +38,7 @@ function getHourAngle(longitude, date, ra_deg) {
 	if (ha < 0) ha += 360;
 	return ha;
 }
-function radecToaltaz(ra, dec, latitude, longitude, date) {
+function radecToaltaz(ra, dec, latitude, longitude, date, log=false) {
 	let ha = getHourAngle(longitude, date, ra.deg);
 
 	let sinDEC = Math.sin(dec.rad);
@@ -48,6 +48,8 @@ function radecToaltaz(ra, dec, latitude, longitude, date) {
 	let sinHA  = Math.sin((Math.PI/180) * ha);
 	let cosHA  = Math.cos((Math.PI/180) * ha);
 
+	if (log) console.log(ha, sinDEC, cosDEC, sinLAT, cosLAT, sinHA, cosHA);
+
 	var altitude = Math.asin((sinDEC*sinLAT) + (cosDEC*cosLAT*cosHA));
 	var azimuth = (180/Math.PI) * Math.acos((sinDEC - (Math.sin(altitude)*sinLAT)) / (Math.cos(altitude)*cosLAT));
 	altitude *= (180/Math.PI);
@@ -56,9 +58,9 @@ function radecToaltaz(ra, dec, latitude, longitude, date) {
 	return {altitude: altitude, azimuth: azimuth};
 }
 
-function rotateAltAz(alt, az) {
+function rotateAltAz(alt, az, changeAzimuth=true) {
 	let phi = (Math.PI/180) * (90 - alt);
-	let theta = (Math.PI/180) * (az + view.theta);
+	let theta = (Math.PI/180) * (az + (changeAzimuth? view.theta : 0));
 	let dphi = (Math.PI/180) * view.phi;
 
 	let x = Math.sin(phi) * Math.cos(theta);
@@ -78,12 +80,12 @@ function rotateAltAz(alt, az) {
 	return {altitude: alt2, azimuth: az2};
 }
 
-function projectAltAz(alt, az) {
+function projectAltAz(alt, az, changeAzimuth=true) {
 
-	newaltaz = rotateAltAz(alt, az);
-
+	newaltaz = rotateAltAz(alt, az, changeAzimuth);
 	alt = newaltaz.altitude;
 	az = newaltaz.azimuth;
+
 	az *= -1;
 	alt *= -1;
 	let zenithAngle = (Math.PI/180)*(90 - alt);
@@ -95,6 +97,7 @@ function projectAltAz(alt, az) {
 async function loadData() {
 	data = await (await fetch("./data/out6.5.json")).json();
 	names = await (await fetch("./data/names.json")).json();
+	bigdata = await (await fetch("./data/out.json")).json();
 	requestAnimationFrame(draw)
 }
 
@@ -102,9 +105,10 @@ function drawStar(star, x, y) {
 	let rgb = bvColor(star.color_index.value)
 	let mag = star.magnitude.hipparcos;
 	let size = Math.min(20/mag, 15);
-	if (view.zoom > 500) size += 2
-	if (view.zoom > 700) size += 2
-	if (view.zoom > 1000) size += view.zoom/400
+	// if (view.zoom > 2000) size += 2
+	// if (view.zoom > 4000) size += 2
+	// if (view.zoom > 7000)
+		size += view.zoom/500
 	// console.log(size)
 	ctx.font = size + "px monospace";
 	let adjusted_rgb = adjustRGBtoMagnitude(rgb, mag);
@@ -123,12 +127,32 @@ function draw() {
 	clickable = {};
 	ctx.canvas.width  = window.innerWidth;
 	ctx.canvas.height = window.innerHeight;
-	ctx.strokeStyle = "red";
-	ctx.beginPath();
-	// ctx.arc(ctx.canvas.width/2,ctx.canvas.height/2,9,0,2*Math.PI)
-	ctx.stroke()
 
-	data.forEach(star => {
+	ctx.fillStyle = "grey";
+	let origin = xyToCanvasCoords({x:0,y:-Math.tan((-Math.PI/180)*(view.phi))}); // believe it or not this was pure guess and check to get this equation...
+	let radius = origin.y - xyToCanvasCoords(projectAltAz(0,270, false)).y;
+	ctx.strokeStyle = "grey";
+	ctx.beginPath();
+	ctx.arc(origin.x, origin.y, Math.abs(radius),0,2*Math.PI)
+	ctx.stroke()
+	// ctx.beginPath();
+	// ctx.arc(window.innerWidth/2, window.innerHeight/2,view.zoom,0,2*Math.PI)
+	// ctx.stroke()
+
+
+	for (body in {sun:1, moon:1, mercury:1, venus:1, mars:1, jupiter:1, saturn:1, uranus:1, neptune:1}) {
+		let moon = calculateKeplarianRaDec(body, daysSinceJ2000(new Date()))
+		let moonaltaz = radecToaltaz(moon.ra, moon.dec,geolocation.lat, geolocation.lon, new Date())
+		if (moonaltaz.altitude < 0) continue;
+		let canvasmoon = xyToCanvasCoords(projectAltAz(moonaltaz.altitude, moonaltaz.azimuth))
+		ctx.fillStyle = "red";
+		ctx.font = "12px monospace";
+		ctx.fillText("*" + body, canvasmoon.x, canvasmoon.y)
+	}
+
+	let source = (view.zoom < 2500) ? data : bigdata;
+
+	source.forEach(star => {
 		let altaz = (radecToaltaz(star.RA, star.DEC, geolocation.lat, geolocation.lon, new Date()));
 
 		if (altaz.altitude < 0) return;
@@ -148,6 +172,12 @@ function draw() {
 		let canvasxytext = xyToCanvasCoords(xytext)
 		ctx.fillText(label, canvasxytext.x, canvasxytext.y)
 	}
+
+	ctx.font = "10px monospace";
+	ctx.fillStyle = "grey";
+	let xytext = projectAltAz(-90,0);
+	let canvasxytext = xyToCanvasCoords(xytext)
+	ctx.fillText("cole wilson 2024", canvasxytext.x, canvasxytext.y)
 
 	requestAnimationFrame(draw)
 }
@@ -190,10 +220,12 @@ function handleClick(e) {
 			}
 		}
 	}
-	let altaz = radecToaltaz(star.RA, star.DEC, geolocation.lat, geolocation.lon, new Date());
-	flyTo(-(90 - altaz.altitude), -(90 + altaz.azimuth), 1000)
-	// view.zoom = 160 * Math.pow(4, star.magnitude.hipparcos);
-	console.log(names[star.hip] || star.hip, altaz.azimuth);
+	if (star) {
+		let altaz = radecToaltaz(star.RA, star.DEC, geolocation.lat, geolocation.lon, getTime());
+		// flyTo(-(90 - altaz.altitude), -(90 + altaz.azimuth), 1000)
+		// view.zoom = 160 * Math.pow(4, star.magnitude.hipparcos);
+		console.log(names[star.hip] || star.hip, altaz.azimuth);
+	}
 }
 
 function flyTo(phi, theta, zoom) {
@@ -259,6 +291,9 @@ function useHash() {
 }
 function updateHash() {
 	window.location.hash = `${view.phi}:${view.theta}:${view.zoom}`;
+}
+function getTime() {
+	return new Date();
 }
 // window.onhashchange = useHash;
 useHash()
