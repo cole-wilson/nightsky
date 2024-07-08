@@ -98,7 +98,7 @@ async function loadData() {
 	let bigurl = (window.location.host == 'localhost') ? "./data/out.json" : "https://media.githubusercontent.com/media/cole-wilson/nightsky/main/data/out.json"
 	data = await (await fetch("./data/out6.5.json")).json();
 	names = await (await fetch("./data/names.json")).json();
-	bigdata = await (await fetch("bugurl")).json();
+	bigdata = await (await fetch(bigurl)).json();
 	requestAnimationFrame(draw)
 }
 
