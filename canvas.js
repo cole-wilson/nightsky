@@ -111,11 +111,32 @@ w = ${Math.round(event.webkitCompassHeading)}<br>
 		compass = event.webkitCompassHeading;
 	compass = -(compass + 90);
 
-	if (event.beta > 135)
+	let vert;
+
+	switch (screen.orientation.type) {
+		case 'landscape-primary':
+			compass += 90;
+			vert = -event.gamma;
+			break;
+		case 'portrait-secondary':
+			compass += 180;
+			vert = -event.beta;
+			break;
+		case 'landscape-secondary':
+			compass += 270;
+			vert = event.gamma;
+			break;
+		case 'portrait-primary':
+			compass += 0;
+			vert = event.beta;
+			break;
+	}
+
+	if (vert > 135)
 		compass *= -1
 
 	view.theta = compass;
-	view.phi = (event.beta) - 180;
+	view.phi = (vert) - 180;
 	window.E = event;
 }
 

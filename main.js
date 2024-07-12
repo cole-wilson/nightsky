@@ -129,7 +129,7 @@ function draw() {
 	}
 	// let source = (view.zoom < 2500) ? data : bigdata;
 
-	let labels = {"N":[0,0], "E":[0,90], "S":[0,180], "W":[0,270], "*":[90,0]}
+	let labels = {"N":[0,0], "E":[0,90], "S":[0,180], "W":[0,270], "*":[90,0], "point screen towards sky!":[-90,0]}
 	for (var label in labels) {
 		ctx.font = "15px monospace";
 		ctx.fillStyle = "red";
