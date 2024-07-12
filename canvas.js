@@ -86,6 +86,16 @@ document.getElementById("stars").addEventListener("mouseup", e=>{
 })
 
 window.addEventListener("click",()=>{
+	let video = document.getElementById("camera");
+	navigator.mediaDevices
+  .getUserMedia({ video: true, audio: false })
+  .then((stream) => {
+    video.srcObject = stream;
+    video.play();
+  })
+  .catch((err) => {
+    console.error(`An error occurred: ${err}`);
+  });
 	DeviceOrientationEvent.requestPermission()
             .then( response => {
             if ( response == "granted" ) {
