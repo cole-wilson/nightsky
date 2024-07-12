@@ -97,13 +97,12 @@ window.addEventListener("click",()=>{
 
 
 function handleOrientation(event) {
-	const absolute = event.absolute;
-	const alpha = event.alpha;
-	const beta = event.beta;
-	const gamma = event.gamma;
-	const heading = event.webkitCompassHeading;
+	var compass = event.alpha;
+	if (event.webkitCompassHeading)
+		compass = event.webkitCompassHeading;
 
-	console.log(absolute, alpha, beta, gamma, heading);
+	view.theta = compass;
+
 }
 
 
