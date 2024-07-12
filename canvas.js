@@ -96,8 +96,14 @@ window.addEventListener("click",()=>{
 // window.addEventListener("deviceorientation", handleOrientation, true);
 
 
-function handleOrientation(e) {
-	alert(e)
+function handleOrientation(event) {
+	const absolute = event.absolute;
+	const alpha = event.alpha;
+	const beta = event.beta;
+	const gamma = event.gamma;
+	const heading = event.webkitCompassHeading;
+
+	console.log(absolute, alpha, beta, gamma, heading);
 }
 
 
