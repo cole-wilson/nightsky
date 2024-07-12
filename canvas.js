@@ -101,8 +101,8 @@ function handleOrientation(event) {
 	if (event.webkitCompassHeading)
 		compass = event.webkitCompassHeading;
 
-	view.theta = compass;
-	view.phi = event.beta;
+	view.theta = compass - 90;
+	view.phi = (event.beta) - 180;
 	window.E = event;
 }
 
