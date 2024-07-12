@@ -84,6 +84,16 @@ document.getElementById("stars").addEventListener("mouseup", e=>{
 	dragging = false
 	if (!moved) handleClick(e);
 })
+
+
+window.addEventListener("deviceorientation", handleOrientation, true);
+
+
+function handleOrientation(e) {
+	document.write(e)
+}
+
+
 function handleClick(e) {
 	var star = false;
 	for (i in clickable) {
