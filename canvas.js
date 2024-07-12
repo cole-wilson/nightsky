@@ -88,7 +88,9 @@ document.getElementById("stars").addEventListener("mouseup", e=>{
 window.addEventListener("click",()=>{
 	let video = document.getElementById("camera");
 	navigator.mediaDevices
-  .getUserMedia({ video: true, audio: false })
+  .getUserMedia({ video: {
+    facingMode: 'environment'
+  }, audio: false })
   .then((stream) => {
     video.srcObject = stream;
     video.play();
