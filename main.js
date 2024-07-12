@@ -72,6 +72,7 @@ function drawHorizon() {
 }
 
 function draw() {
+	let calcdate = getTime();
 	setControls();
 	ctx.canvas.width  = window.innerWidth;
 	ctx.canvas.height = window.innerHeight;
@@ -92,12 +93,12 @@ function draw() {
 		let altaz;
 
 		if (object.position.type == 'equatorial') {
-			altaz = radecToaltaz(object.position.ra, object.position.dec, geolocation.lat, geolocation.lon, new Date())
-			object.size = Math.min(2, 4/object.magnitude) * ((1.4*view.zoom)/ctx.canvas.height);
+			altaz = radecToaltaz(object.position.ra, object.position.dec, geolocation.lat, geolocation.lon, calcdate)
+			object.size = Math.min(3, 4/object.magnitude) * ((1.4*view.zoom)/ctx.canvas.height);
 
 		} else if (object.position.type == 'keplarian') {
-			let keplarianProperties = calculateKeplarianProperties(object, daysSinceJ2000(new Date()));
-			altaz = radecToaltaz(keplarianProperties.ra, keplarianProperties.dec, geolocation.lat, geolocation.lon, new Date())
+			let keplarianProperties = calculateKeplarianProperties(object, daysSinceJ2000(calcdate));
+			altaz = radecToaltaz(keplarianProperties.ra, keplarianProperties.dec, geolocation.lat, geolocation.lon, calcdate)
 			// console.log(object.name, keplarianProperties.size);
 			object.size = Math.max(10*arcsecondsToPixels(keplarianProperties.size, altaz.altitude, altaz.azimuth), 5);
 			object.magnitude = 0;
@@ -152,7 +153,7 @@ function useHash() {
 	view.zoom = parseFloat(hash[2]);
 }
 setInterval(updateHash,1000);
-function updateHash() {window.location.hash = `${view.phi}:${view.theta}:${view.zoom}`;}
+function updateHash() {window.location.hash = `${Math.round(view.phi)}:${Math.round(view.theta)}:${Math.round(view.zoom)}`;}
 
 useHash()
 

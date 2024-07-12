@@ -9,6 +9,11 @@ body {
 canvas {
 	width: 100vw;
 	height: 100vh;
+	cursor: move;
+	cursor: grab;
+}
+canvas:active {
+	cursor: grabbing;
 }
 
 #filter {
@@ -23,10 +28,28 @@ canvas {
 	pointer-events: none;
 }
 
-#info {
+#info_left {
+	color: grey;
 	position: fixed;
 	bottom: 0;
+	padding: 5px;
 	left: 0;
 	font-size: 10px;
 	pointer-events: none;
+}
+#info_right {
+	position: fixed;
+	bottom: 0;
+	padding: 5px;
+	right: 0;
+	font-size 10px;
+	color: grey;
+	font-size: 10px;
+	/* pointer-events: none; */
+}
+button {
+	background: none;
+	border: none;
+	color: grey;
+	cursor: pointer;
 }

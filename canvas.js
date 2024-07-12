@@ -1,6 +1,6 @@
 let view = {zoom: window.innerHeight/2, phi: 0, theta: 0};
 var clickable = {};
-
+var cursor = {x:0,y:0}
 var lastdrag = {};
 var dragging = false;
 var moved = false;
@@ -73,6 +73,7 @@ document.getElementById("stars").addEventListener("wheel", e => {
 document.getElementById("stars").addEventListener("mousedown", e => {dragging=true;lastdrag={x:e.clientX, y:e.clientY}; moved=false})
 document.getElementById("stars").addEventListener("mousemove", e => {
 	moved = true;
+	cursor = {x:e.clientX, y:e.clientY}
 	if (!dragging) return;
 	let deltaX = e.clientX - lastdrag.x;
 	let deltaY = -(e.clientY - lastdrag.y);
@@ -140,6 +141,9 @@ function pan(dx, dy, cx, cy) {
 
 function xyToCanvasCoords(xy) {
 	return {x:(ctx.canvas.width/2) + view.zoom * xy.x, y:(ctx.canvas.height/2) + view.zoom * xy.y};
+}
+function canvasCoordsToXY(coords) {
+	return {x: (coords.x - (ctx.canvas.width/2)) / view.zoom, y: (coords.y - (ctx.canvas.width/2)) / view.zoom}
 }
 
 function arcsecondsToPixels(arcseconds, alt, az) {
