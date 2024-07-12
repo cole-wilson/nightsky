@@ -111,13 +111,6 @@ window.addEventListener("click",()=>{
 function handleOrientation(event) {
 	// view.zoom = 400;
 
-	document.getElementById("debug").innerHTML = `
-a = ${Math.round(event.alpha)}<br>
-b = ${Math.round(event.beta)}<br>
-g = ${Math.round(event.gamma)}<br>
-w = ${Math.round(event.webkitCompassHeading)}<br>
-	`;
-
 	var compass = event.alpha;
 	if (event.webkitCompassHeading)
 		compass = event.webkitCompassHeading;
@@ -149,6 +142,15 @@ w = ${Math.round(event.webkitCompassHeading)}<br>
 			vert = event.beta;
 			break;
 	}
+
+	document.getElementById("debug").innerHTML = `
+a = ${Math.round(event.alpha)}<br>
+b = ${Math.round(event.beta)}<br>
+g = ${Math.round(event.gamma)}<br>
+w = ${Math.round(event.webkitCompassHeading)}<br>
+v = ${Math.round(vert)}
+c = ${Math.round(compass)}
+	`;
 
 	if (vert > 135 || vert < -135)
 		compass *= -1
