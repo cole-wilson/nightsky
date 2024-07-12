@@ -93,7 +93,7 @@ window.addEventListener("click",()=>{
             }
         })
 });
-window.addEventListener("deviceorientation", handleOrientation, true);
+// window.addEventListener("deviceorientation", handleOrientation, true);
 
 
 function handleOrientation(e) {
