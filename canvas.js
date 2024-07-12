@@ -98,6 +98,14 @@ window.addEventListener("click",()=>{
 
 function handleOrientation(event) {
 	// view.zoom = 400;
+
+	document.getElementById("debug").innerHTML = `
+a = ${Math.round(event.alpha)}
+b = ${Math.round(event.beta)}
+g = ${Math.round(event.gamma)}
+w = ${Math.round(event.webkitCompassHeading)}
+	`;
+
 	var compass = event.alpha;
 	if (event.webkitCompassHeading)
 		compass = event.webkitCompassHeading;
