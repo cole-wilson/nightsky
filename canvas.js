@@ -100,10 +100,10 @@ function handleOrientation(event) {
 	// view.zoom = 400;
 
 	document.getElementById("debug").innerHTML = `
-a = ${Math.round(event.alpha)}
-b = ${Math.round(event.beta)}
-g = ${Math.round(event.gamma)}
-w = ${Math.round(event.webkitCompassHeading)}
+a = ${Math.round(event.alpha)}<br>
+b = ${Math.round(event.beta)}<br>
+g = ${Math.round(event.gamma)}<br>
+w = ${Math.round(event.webkitCompassHeading)}<br>
 	`;
 
 	var compass = event.alpha;
