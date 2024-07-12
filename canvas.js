@@ -90,7 +90,7 @@ window.addEventListener("deviceorientation", handleOrientation, true);
 
 
 function handleOrientation(e) {
-	document.write(e)
+	alert(e)
 }
 
 
