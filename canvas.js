@@ -101,10 +101,10 @@ function handleOrientation(event) {
 	var compass = event.alpha;
 	if (event.webkitCompassHeading)
 		compass = event.webkitCompassHeading;
-	compass = (compass - 90);
+	compass = -(compass - 90);
 
-	if (event.beta > 90)
-		compass *= -1
+	// if (event.beta > 90)
+		// compass *= -1
 
 	view.theta = compass;
 	view.phi = (event.beta) - 180;
