@@ -85,7 +85,14 @@ document.getElementById("stars").addEventListener("mouseup", e=>{
 	if (!moved) handleClick(e);
 })
 
-
+window.addEventListener("click",()=>{
+	DeviceOrientationEvent.requestPermission()
+            .then( response => {
+            if ( response == "granted" ) {
+                window.addEventListener( "deviceorientation", handleOrientation)
+            }
+        })
+});
 window.addEventListener("deviceorientation", handleOrientation, true);
 
 
