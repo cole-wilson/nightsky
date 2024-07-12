@@ -1,4 +1,4 @@
-let view = {zoom: window.innerHeight/2, phi: 0, theta: 0};
+let view = {zoom: window.innerHeight/2, phi: 0, theta: 0, rot: 0};
 var clickable = {};
 var cursor = {x:0,y:0}
 var lastdrag = {};
@@ -117,10 +117,12 @@ function handleOrientation(event) {
 	compass = -(compass + 90);
 
 	let vert;
+	var rot;
 
 	switch (screen.orientation.type) {
 		case 'landscape-primary':
 			compass -= 90;
+			rot = event.beta;
 			if (event.gamma > 0)
 				vert = 180 - event.gamma;
 			else
@@ -128,16 +130,19 @@ function handleOrientation(event) {
 			break;
 		case 'portrait-secondary':
 			compass -= 180;
+			rot = 0;
 			vert = -event.beta;
 			break;
 		case 'landscape-secondary':
 			compass -= 270;
+			rot = -event.beta;
 			if (event.gamma < 0)
 				vert = 180 + event.gamma;
 			else
 				vert = event.gamma;
 			break;
 		case 'portrait-primary':
+			rot = 0;
 			compass -= 0;
 			vert = event.beta;
 			break;
@@ -148,9 +153,11 @@ a = ${Math.round(event.alpha)}<br>
 b = ${Math.round(event.beta)}<br>
 g = ${Math.round(event.gamma)}<br>
 w = ${Math.round(event.webkitCompassHeading)}<br>
-v = ${Math.round(vert)}
-c = ${Math.round(compass)}
+v = ${Math.round(vert)}<br>
+c = ${Math.round(compass)}<br>
+r = ${Math.round(rot)}
 	`;
+	ctx.canvas.style.transform = "rotate("+rot+"deg)";
 
 	if (vert > 135 || vert < -135)
 		compass *= -1
