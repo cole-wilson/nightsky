@@ -122,7 +122,7 @@ function handleOrientation(event) {
 	switch (screen.orientation.type) {
 		case 'landscape-primary':
 			compass -= 90;
-			rot = event.beta;
+			rot = -event.beta;
 			if (event.gamma > 0)
 				vert = 180 - event.gamma;
 			else
@@ -135,7 +135,7 @@ function handleOrientation(event) {
 			break;
 		case 'landscape-secondary':
 			compass -= 270;
-			rot = -event.beta;
+			rot = event.beta;
 			if (event.gamma < 0)
 				vert = 180 + event.gamma;
 			else
