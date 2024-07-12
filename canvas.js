@@ -157,7 +157,7 @@ v = ${Math.round(vert)}<br>
 c = ${Math.round(compass)}<br>
 r = ${Math.round(rot)}
 	`;
-	ctx.canvas.style.transform = "rotate("+rot+"deg)";
+	// ctx.canvas.style.transform = "rotate("+rot+"deg)";
 
 	if (vert > 135 || vert < -135)
 		compass *= -1
