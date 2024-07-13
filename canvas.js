@@ -2,6 +2,7 @@ let view = {zoom: window.innerHeight/2, phi: 0, theta: 0, rot: 0};
 var clickable = {};
 var cursor = {x:0,y:0}
 var lastdrag = {};
+var lastPinchDist = 0;
 var dragging = false;
 var moved = false;
 var clickable = {};
@@ -64,42 +65,70 @@ function drawStar(star, x, y) {
 }
 
 
-// window.addEventListener("mousewheel", e => {view.zoom = Math.max(view.zoom - e.deltaY, 160);})
 document.getElementById("stars").addEventListener("wheel", e => {
 	e.preventDefault()
 	view.zoom = Math.max(view.zoom - 2*e.deltaY, 160);
 }, {passive:false})
 
 document.getElementById("stars").addEventListener("mousedown", e => {dragging=true;lastdrag={x:e.clientX, y:e.clientY}; moved=false})
-document.getElementById("stars").addEventListener("mousemove", e => {
+document.getElementById("stars").addEventListener("touchstart", e => {
+	e.preventDefault()
+	if (e.touches.length == 2) {
+		lastPinchDist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
+	} else if (e.touches.length == 1) {
+		dragging=true;
+		lastdrag={x:e.touches[0].clientX, y:e.touches[0].clientY};
+		moved=false;
+	}
+})
+document.getElementById("stars").addEventListener("touchmove", e => {
+	e.preventDefault();
+	if (e.touches.length == 1) mouseMove(e.touches[0].clientX, e.touches[0].clientY)
+	else if (e.touches.length == 2) {
+		let nowPinchDist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
+		let delta = 4.5*(lastPinchDist - nowPinchDist);
+		view.zoom = Math.max(view.zoom - delta, 160);
+		lastPinchDist = nowPinchDist;
+	}
+})
+document.getElementById("stars").addEventListener("mousemove", e => mouseMove(e.clientX, e.clientY))
+
+
+function mouseMove(x, y) {
 	moved = true;
-	cursor = {x:e.clientX, y:e.clientY}
+	cursor = {x:x, y:y}
 	if (!dragging) return;
-	let deltaX = e.clientX - lastdrag.x;
-	let deltaY = -(e.clientY - lastdrag.y);
-	lastdrag={x:e.clientX, y:e.clientY}
-	pan(deltaX, deltaY, e.clientX, e.clientY);
-})
-document.getElementById("stars").addEventListener("mouseup", e=>{
+
+	let deltaX = x - lastdrag.x;
+	let deltaY = -(y - lastdrag.y);
+
+	lastdrag=cursor
+	pan(deltaX, deltaY, x, y);
+
+}
+
+document.getElementById("stars").addEventListener("mouseup", e => mouseUp(e.clientX, e.clientY))
+document.addEventListener("touchend", e => {if (e.touches.length == 1) mouseUp(e.touches[0].clientX, e.touches[0].clientY)})
+
+function mouseUp(x,y) {
 	dragging = false
-	if (!moved) handleClick(e);
-})
+	if (!moved) handleClick(x, y);
+}
+
 
 window.addEventListener("click",()=>{
-	let video = document.getElementById("camera");
+	DeviceOrientationEvent.requestPermission()
+            .then( response => {
+					let video = document.getElementById("camera");
 	navigator.mediaDevices
-  .getUserMedia({ video: {
-    facingMode: 'environment'
-  }, audio: false })
-  .then((stream) => {
-    video.srcObject = stream;
-    video.play();
-  })
+		.getUserMedia({ video: {facingMode: 'environment'}, audio: false })
+		.then((stream) => {
+			video.srcObject = stream;
+			video.play();
+		})
   .catch((err) => {
     console.error(`An error occurred: ${err}`);
   });
-	DeviceOrientationEvent.requestPermission()
-            .then( response => {
             if ( response == "granted" ) {
                 window.addEventListener( "deviceorientation", handleOrientation)
             }

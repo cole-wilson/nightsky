@@ -68,7 +68,7 @@ function setControls() {
 }
 
 function displaySetting() {
-	left.innerText = geolocation.lat + ", " + geolocation.lon + " " + getTime();
+	left.innerHTML = geolocation.lat + ", " + geolocation.lon + "<br>" + getTime().toLocaleString();
 }
 
 setupButtons()

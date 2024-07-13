@@ -1,6 +1,7 @@
 const CATALOG_URLS = [
 	"/data/hipparcos.json",
-	"/data/keplarian.json"
+	"/data/keplarian.json",
+	"/data/messier.json"
 ]
 var catalogs = [];
 var objects = {};
@@ -120,7 +121,7 @@ function draw() {
 		if (canvasxy.x > -over && canvasxy.y > -over && canvasxy.x < ctx.canvas.width+over && canvasxy.y < ctx.canvas.height+over) {
 			drawCircle(canvasxy.x, canvasxy.y, size/2, color)
 			// console.log(((size*ctx.canvas.height)/view.zoom) )
-			if (object.name && size > 3) {
+			if (object.name && size > 2) {
 				ctx.fillStyle = "red";
 				ctx.font = Math.min(20, Math.max(12, size+5))+"px monospace";
 				ctx.fillText(object.name, canvasxy.x, canvasxy.y)
@@ -129,7 +130,7 @@ function draw() {
 	}
 	// let source = (view.zoom < 2500) ? data : bigdata;
 
-	let labels = {"N":[0,0], "E":[0,90], "S":[0,180], "W":[0,270], "*":[90,0], "point screen towards sky!":[-90,0]}
+	let labels = {"N":[0,0], "E":[0,90], "S":[0,180], "W":[0,270], "*":[90,0]}//, "point screen towards sky!":[-90,0]}
 	for (var label in labels) {
 		ctx.font = "15px monospace";
 		ctx.fillStyle = "red";
@@ -148,9 +149,10 @@ function getVisibleMagnitude() {
 function useHash() {
 	hash = window.location.hash.slice(1).split(":");
 	if (hash.length < 3) return
-	view.phi = parseFloat(hash[0]);
-	view.theta = parseFloat(hash[1]);
-	view.zoom = parseFloat(hash[2]);
+	view.phi = parseFloat(hash[0]) || 0;
+	view.theta = parseFloat(hash[1]) || 0;
+	view.zoom = parseFloat(hash[2]) || 300;
+	updateHash();
 }
 setInterval(updateHash,1000);
 function updateHash() {window.location.hash = `${Math.round(view.phi)}:${Math.round(view.theta)}:${Math.round(view.zoom)}`;}
