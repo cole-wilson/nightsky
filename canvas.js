@@ -183,7 +183,7 @@ b = ${Math.round(event.beta)}<br>
 g = ${Math.round(event.gamma)}<br>
 w = ${Math.round(event.webkitCompassHeading)}<br>
 v = ${Math.round(vert)}<br>
-c = ${Math.round(compass)}<br>
+c = ${compass}<br>
 r = ${Math.round(rot)}
 	`;
 	// ctx.canvas.style.transform = "rotate("+rot+"deg)";
