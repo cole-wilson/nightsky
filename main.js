@@ -37,7 +37,6 @@ async function loadData() {
 			objects[objectID] = catalogs[i].objects[objectID];
 		}
 	}
-	requestAnimationFrame(draw)
 }
 
 function drawStar(star, x, y) {
@@ -171,7 +170,7 @@ function useHash() {
 setInterval(updateHash,1000);
 function updateHash() {window.location.hash = `${Math.round(view.phi)}:${Math.round(view.theta)}:${Math.round(view.zoom)}:${highlighted||null}`;}
 
+requestAnimationFrame(draw)
 useHash()
-
 loadData()
 getLocation()
