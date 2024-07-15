@@ -41,11 +41,31 @@ async function loadData() {
 }
 
 function getAtmosphere() {
-	return {color: "black", starOpacity: 1}
-	if (sunAltitude < 6) return {color: ""}
-	let opacity = 0.1;
-	let color = "skyblue";
-	return {color: color, starOpacity: opacity}
+	let dawn = [200,165,0];
+	let day = [135, 206, 235];
+
+	let color;
+	let mag;
+	if (sunAltitude < -6) {
+		color = "black";
+		mag = 100;
+	} else if (sunAltitude < 0) {
+		let p = (sunAltitude + 6) / 6;
+		color = `rgb(${p*dawn[0]},${p*dawn[1]},${p*dawn[2]})`;
+		mag = 100 - (95 * p);
+	} else if (sunAltitude < 5) {
+		let p = sunAltitude / 5;
+		let dr = dawn[0] - day[0];
+		let dg = dawn[1] - day[1];
+		let db = dawn[2] - day[2];
+		mag = 5 - (7 * p);
+		color = `rgb(${dawn[0] - (p*dr)}, ${dawn[1] - (p*dg)}, ${dawn[2] - (p*db)})`;
+	}
+	else {
+		mag = -2;
+		color = "rgb(135, 206, 235)"
+	}
+	return {color: color, magnitude: mag}
 }
 
 
@@ -80,15 +100,11 @@ function draw() {
 
 	drawHorizon(atmosphere);
 
-	ctx.globalAlpha = atmosphere.starOpacity;
-
 	for (var objectID in objects) {
 		let object = objects[objectID];
 
-		doObject(object, calcdate)
+		doObject(object, calcdate, atmosphere)
 	}
-
-	ctx.globalAlpha = 1;
 
 	// let source = (view.zoom < 2500) ? data : bigdata;
 
@@ -107,7 +123,7 @@ function draw() {
 
 	requestAnimationFrame(draw)
 }
-function doObject(object, calcdate) {
+function doObject(object, calcdate, atmosphere) {
 	let altaz;
 
 	if (object.position.type == 'equatorial') {
@@ -117,15 +133,19 @@ function doObject(object, calcdate) {
 		altaz = radecToaltaz(keplarianProperties.ra, keplarianProperties.dec, geolocation.lat, geolocation.lon, calcdate)
 	}
 
-	object.size = 1;
+	// object.size = 1;
 	object.altaz = altaz;
 
 	if (object.id == 'sun') sunAltitude = altaz.altitude;
 
 	if (altaz.altitude < 0) return;
-	if (object.magnitude > getVisibleMagnitude()) return;
+	if (object.magnitude > getVisibleMagnitude() || object.magnitude > atmosphere.magnitude) return;
 
-	object.size = 1.9 * Math.min(2, getVisibleMagnitude() / (object.magnitude * 3));
+	// if (object.size) {
+		// object.size = arcsecondsToPixels(4*object.size, altaz.altitude, altaz.azimuth)
+	// } else {
+		object.size = 1.9 * Math.min(2, getVisibleMagnitude() / (Math.max(object.magnitude,0) * 3));
+	// }
 
 	let alpha;
 	if (object.size < 1) {
@@ -157,7 +177,7 @@ function doObject(object, calcdate) {
 		if (object.name) {
 			ctx.fillStyle = "red";
 			ctx.font = (5+object.size) + "px monospace";
-			ctx.fillText(object.name, canvasxy.x, canvasxy.y)
+			// ctx.fillText(object.name, canvasxy.x, canvasxy.y)
 		}
 	} else if (highlighted == object.id) {
 

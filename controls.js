@@ -75,6 +75,8 @@ function setupButtons() {
 	nowel.addEventListener("click", (_) => {
 		date = +new Date();
 		speedMult = 1;
+		forward.style.color = "grey";
+		back.style.color = "grey";
 	})
 }
 
