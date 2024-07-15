@@ -159,7 +159,7 @@ async function doObject(object, calcdate) {
 function useHash() {
 	hash = window.location.hash.slice(1).split(":");
 	if (hash.length < 3) return
-	view.phi = parseFloat(hash[0]) || 0;
+	view.phi = parseFloat(hash[0]) || 0.5;
 	view.theta = parseFloat(hash[1]) || 0;
 	view.zoom = parseFloat(hash[2]) || 300;
 	if (hash[3] != 'null') {
