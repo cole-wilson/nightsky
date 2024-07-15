@@ -41,10 +41,11 @@ function radecToaltaz(ra, dec, latitude, longitude, date, log=false) {
 	return {altitude: altitude, azimuth: azimuth};
 }
 
-function rotateAltAz(alt, az, changeAzimuth=true) {
+function rotateAltAz(alt, az, changeAzimuth=true, reverse=false) {
+	let sign = reverse ? -1 : 1;
 	let phi = (Math.PI/180) * (90 - alt);
-	let theta = (Math.PI/180) * (az + (changeAzimuth? view.theta : 0));
-	let dphi = (Math.PI/180) * view.phi;
+	let theta = (Math.PI/180) * (az + (changeAzimuth? (sign * -view.theta) : 0));
+	let dphi = (Math.PI/180) * sign * (view.phi - 90);
 
 	let x = Math.sin(phi) * Math.cos(theta);
 	let y = Math.sin(phi) * Math.sin(theta);
@@ -64,7 +65,7 @@ function rotateAltAz(alt, az, changeAzimuth=true) {
 }
 
 function projectAltAz(alt, az, changeAzimuth=true) {
-	newaltaz = rotateAltAz(alt, az, changeAzimuth);
+	newaltaz = rotateAltAz(alt, az - 90, changeAzimuth);
 	alt = newaltaz.altitude;
 	az = newaltaz.azimuth;
 
@@ -74,4 +75,17 @@ function projectAltAz(alt, az, changeAzimuth=true) {
 	let r = 1/Math.tan(zenithAngle/2);
 	let theta = (Math.PI/180)*az;
 	return {x:r*Math.cos(theta), y:r*Math.sin(theta)};
+}
+
+function unprojectAltAz(xy) {
+	let r = Math.hypot(xy.y, xy.x);
+	let theta = Math.atan2(xy.y, xy.x);
+
+	let zenithAngle = 2 * Math.atan(1/r);
+
+	let rotated_alt = -1 * (90 - (zenithAngle * (180/Math.PI)));
+	let rotated_az = -1 * (180/Math.PI) * theta;
+
+	let newaltaz = rotateAltAz(rotated_alt, rotated_az, true, true);
+	return {altitude:newaltaz.altitude, azimuth:newaltaz.azimuth}
 }

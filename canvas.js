@@ -6,7 +6,10 @@ var lastPinchDist = 0;
 var dragging = false;
 var moved = false;
 var clickable = {};
+var highlighted = null;
 
+const GRID_STEPS_X = 10;
+const GRID_STEPS_Y = 10;
 
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
@@ -15,59 +18,20 @@ function rgb(r, g, b, a=1) {
 	return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-function drawCircle(x, y, r, color, fill=true, gradient=false) {
-	// ctx.fillStyle = color;
+function drawCircle(x, y, r, color, fill=true) {
+	ctx.fillStyle = color;
 	ctx.strokeStyle = color;
-	// ctx.shadowBlur = 1;
-	// ctx.shadowColor = "green";
-	// ctx.font = r + "px monospace";
-	// ctx.fillText(".", x, y)
-	if (gradient) {
-		const grd = ctx.createRadialGradient(x,y,1,x,y,r);
-		grd.addColorStop(0, color);
-		// grd.addColorStop(0.6, color);
-		grd.addColorStop(1, "rgba(255,255,255,0.0)");
-		ctx.fillStyle = grd;
-	} else {
-		ctx.fillStyle = color;
-	}
-	if (r > 1) {
-		ctx.beginPath();
-		ctx.arc(x, y, r, 0, 2*Math.PI);
-		if (fill) ctx.fill();
-		else ctx.stroke();
-	}
-	else {
-		ctx.fillRect(x, y, Math.ceil(r*2), Math.ceil(r*2));
-	}
+	ctx.beginPath();
+	ctx.arc(x, y, r, 0, 2*Math.PI);
+	if (fill) ctx.fill();
+	else ctx.stroke();
 }
-
-function drawStar(star, x, y) {
-	let rgb = bvColor(star.color_index.value)
-	let mag = star.magnitude.hipparcos;
-	let size = Math.min(20/mag, 15);
-	// if (view.zoom > 2000) size += 2
-	// if (view.zoom > 4000) size += 2
-	// if (view.zoom > 7000)
-		size += view.zoom/500
-	// console.log(size)
-	ctx.font = size + "px monospace";
-	let adjusted_rgb = adjustRGBtoMagnitude(rgb, mag);
-	ctx.fillStyle = `rgb(${adjusted_rgb[0]}, ${adjusted_rgb[1]}, ${adjusted_rgb[2]})`
-	ctx.fillText(".", x, y);
-
-	clickable[[Math.floor(x),Math.floor(y)]] = star;
-
-	if (0.9*mag < view.zoom/400 && star.hip in names) {
-		ctx.font = Math.max(10, Math.min(size, 13)) + "px monospace";
-		ctx.fillText("  "+names[star.hip], x, y);
-	}
-}
-
 
 document.getElementById("stars").addEventListener("wheel", e => {
 	e.preventDefault()
-	view.zoom = Math.max(view.zoom - 2*e.deltaY, 160);
+	let delta = (view.zoom/100)*4*e.deltaY;
+	let newzoom = view.zoom - delta;
+	view.zoom = Math.max(Math.min(newzoom, 100000), 160);
 }, {passive:false})
 
 document.getElementById("stars").addEventListener("mousedown", e => {dragging=true;lastdrag={x:e.clientX, y:e.clientY}; moved=false})
@@ -95,7 +59,6 @@ document.getElementById("stars").addEventListener("mousemove", e => mouseMove(e.
 
 
 function mouseMove(x, y) {
-	moved = true;
 	cursor = {x:x, y:y}
 	if (!dragging) return;
 
@@ -103,8 +66,9 @@ function mouseMove(x, y) {
 	let deltaY = -(y - lastdrag.y);
 
 	lastdrag=cursor
-	pan(deltaX, deltaY, x, y);
 
+	moved = true;
+	pan(deltaX, deltaY, x, y);
 }
 
 document.getElementById("stars").addEventListener("mouseup", e => mouseUp(e.clientX, e.clientY))
@@ -115,127 +79,55 @@ function mouseUp(x,y) {
 	if (!moved) handleClick(x, y);
 }
 
-
-window.addEventListener("click",()=>{
-	DeviceOrientationEvent.requestPermission()
-            .then( response => {
-					let video = document.getElementById("camera");
-	navigator.mediaDevices
-		.getUserMedia({ video: {facingMode: 'environment'}, audio: false })
-		.then((stream) => {
-			video.srcObject = stream;
-			video.play();
-		})
-  .catch((err) => {
-    console.error(`An error occurred: ${err}`);
-  });
-            if ( response == "granted" ) {
-                window.addEventListener( "deviceorientation", handleOrientation)
-            }
-        })
-});
-// window.addEventListener("deviceorientation", handleOrientation, true);
-
-
-function handleOrientation(event) {
-	// view.zoom = 400;
-
-	var compass = event.alpha;
-	if (event.webkitCompassHeading)
-		compass = event.webkitCompassHeading;
-	compass = -(compass + 90);
-
-	let vert;
-	var rot;
-
-	switch (screen.orientation.type) {
-		case 'landscape-primary':
-			// compass -= 90;
-			rot = -event.beta;
-			if (event.gamma > 0)
-				vert = 180 - event.gamma;
-			else
-				vert = -event.gamma;
-			break;
-		case 'portrait-secondary':
-			// compass -= 180;
-			rot = 0;
-			vert = -event.beta;
-			break;
-		case 'landscape-secondary':
-			// compass -= 270;
-			rot = event.beta;
-			if (event.gamma < 0)
-				vert = 180 + event.gamma;
-			else
-				vert = event.gamma;
-			break;
-		case 'portrait-primary':
-			rot = 0;
-			// compass -= 0;
-			vert = event.beta;
-			break;
-	}
-
-	document.getElementById("debug").innerHTML = `
-a = ${Math.round(event.alpha)}<br>
-b = ${Math.round(event.beta)}<br>
-g = ${Math.round(event.gamma)}<br>
-w = ${Math.round(event.webkitCompassHeading)}<br>
-v = ${Math.round(vert)}<br>
-c = ${compass}<br>
-r = ${Math.round(rot)}
-	`;
-	// ctx.canvas.style.transform = "rotate("+rot+"deg)";
-
-	if (vert > 135 || vert < -135)
-		compass *= -1
-
-	view.theta = compass;
-	view.phi = (vert) - 180;
+function getSquare(x, y) {
+	let sizemult = Math.min(1, Math.max(1.5, 0.5 * view.zoom / ctx.canvas.height));
+	let rx = Math.floor(x/(GRID_STEPS_X * sizemult));
+	let ry = Math.floor(y/(GRID_STEPS_Y * sizemult));
+	return rx+":"+ry;
 }
+function drawSquares() {
+	ctx.strokeStyle = "green";
+	ctx.globalAlpha = 0.6;
 
+	let sizemult = Math.min(1, Math.max(1.5, 0.5 * view.zoom / ctx.canvas.height));
+	let gsy = GRID_STEPS_Y * sizemult;
+	let gsx = GRID_STEPS_X * sizemult;
 
-function handleClick(e) {
-	var star = false;
-	for (i in clickable) {
-		let sx = parseInt(i.split(',')[0]);
-		let sy = parseInt(i.split(',')[1]);
-		if (Math.abs(sx - e.clientX) < 10 && Math.abs(sy - e.clientY) < 10) {
-			let thisstar = clickable[i];
-			if (star && thisstar.magnitude.hipparcos < star.magnitude.hipparcos) {
-				star = thisstar
-			} else if (!star) {
-				star = thisstar
-			}
+	for (var x=0;x<ctx.canvas.width/gsx;x++) {
+		for (var y=0;y<ctx.canvas.height/gsy;y++) {
+			ctx.strokeRect(x*gsx, y*gsy, gsx, gsy);
 		}
 	}
-	if (star) {
-		let altaz = radecToaltaz(star.RA, star.DEC, geolocation.lat, geolocation.lon, new Date());
-		// flyTo(-(90 - altaz.altitude), -(90 + altaz.azimuth), 1000)
-		// view.zoom = 160 * Math.pow(4, star.magnitude.hipparcos);
-		console.log(names[star.hip] || star.hip, altaz.azimuth);
+	ctx.globalAlpha = 1;
+}
+
+function handleClick(x, y) {
+	var star = false;
+
+	let square = getSquare(x, y);
+
+	console.log(square)
+
+	if (square in clickable) {
+		let object = clickable[square];
+		highlighted = object.id;
+		showInfo(object)
 	}
 }
 
-function flyTo(phi, theta, zoom) {
-	const tolerance = 1;
-	const ztolerance = 10;
-	console.log(Math.abs(view.zoom - zoom))
+function drawCursor() {
+	if ((highlighted in objects)) {
+		let object = objects[highlighted];
+		ctx.lineWidth = 3;
+		drawCircle(object.canvasxy.x, object.canvasxy.y, 8 + object.size/2, "red", false);
+		ctx.lineWidth = 1;
 
-	let thetaBad = Math.abs(view.theta - theta) > tolerance;
-	let phiBad = Math.abs(view.phi - phi) > tolerance;
-	let zoomBad = Math.abs(view.zoom - zoom) > ztolerance;
-	if (thetaBad) view.theta -= 2 * Math.sign(view.theta - theta);
-	if (phiBad) view.phi -= 2 * Math.sign(view.phi - phi);
-	if (zoomBad) view.zoom -= 20 * Math.sign(view.zoom - zoom);
-	if (thetaBad || phiBad || zoomBad) setTimeout(()=>flyTo(phi, theta, zoom), 10)
-	console.log(thetaBad, phiBad, zoomBad)
-	return;
+	}
 }
+
 function pan(dx, dy, cx, cy) {
 	let dphi = (dy/view.zoom) * 110;
-	let dtheta = (dx/view.zoom) * 110;
+	let dtheta = (-dx/view.zoom) * 110;
 
 	var zenith = xyToCanvasCoords(projectAltAz(90, 0));
 	let south = xyToCanvasCoords(projectAltAz(-90, 0))
@@ -245,7 +137,7 @@ function pan(dx, dy, cx, cy) {
 	}
 
 	view.phi -= dphi;
-	view.phi = Math.max(Math.min(0, view.phi), -180);
+	view.phi = Math.max(Math.min(90, view.phi), -90);
 	view.theta += dtheta;
 	// console.log(dphi)
 }
@@ -265,4 +157,10 @@ function arcsecondsToPixels(arcseconds, alt, az) {
 	let by = xyToCanvasCoords(projectAltAz(alt+(arcseconds/3600), az)).y;
 	let pixels = Math.hypot(ax-bx, ay-by);
 	return pixels;
+}
+
+function flyTo(alt, az, zoom) {
+	view.zoom = zoom;
+	view.phi = alt;
+	view.theta = az;
 }

@@ -38,8 +38,8 @@ for index, line in enumerate(data):
     ra, dec = map(str.strip, re.split(r"\s+", radec.strip()))
     uw = map(str.strip, re.split(r"\s+", uw.strip()))
 
-    if float(hpmag) > 6.5:
-        continue
+    # if float(hpmag) > 6.5:
+    #     continue
 
     output["objects"]["HIP"+hip] = {
         "id": "HIP"+hip,

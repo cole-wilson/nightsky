@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="/style.css">
 	</head>
 	<body>
-		<video id="camera"></video>
+		<video id="camera" playsinline disablepictureinpicture></video>
 		<div id="debug">DEBUG</div>
 		<div id="filter"></div>
 		<div id="info_right">
@@ -18,12 +18,15 @@
 			<button title="Now" id="time_now"></button>
 		</div>
 		<div id="info_left">loading...</div>
+		<div id="info_top_left"></div>
+		<div id="info_top_right"><button id="use_ar">AR</button></div>
 
 		<canvas id="stars" width="600" height="600">map</canvas>
 
 		<script src="/data/keplarian.js"></script>
 
 		<script src="/math.js"></script>
+		<script src="/ar.js"></script>
 		<script src="/controls.js"></script>
 		<script src="/canvas.js"></script>
 		<script src="/keplarian.js"></script>

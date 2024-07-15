@@ -1,7 +1,7 @@
 const CATALOG_URLS = [
 	"/data/hipparcos.json",
 	"/data/keplarian.json",
-	"/data/messier.json"
+	// "/data/messier.json"
 ]
 var catalogs = [];
 var objects = {};
@@ -24,6 +24,11 @@ async function loadData() {
 	}
 	for (var i=0;i<catalogs.length;i++) {
 		for (var objectID in catalogs[i].objects) {
+			catalogs[i].objects[objectID].catalog = {
+				name: catalogs[i].name,
+				url: catalogs[i].url,
+				attribution: catalogs[i].attribution
+			}
 			objects[objectID] = catalogs[i].objects[objectID];
 		}
 	}
@@ -53,23 +58,22 @@ function drawStar(star, x, y) {
 }
 
 function drawHorizon() {
-	let origin = xyToCanvasCoords({x:0,y:-Math.tan((-Math.PI/180)*(view.phi))}); // believe it or not this was pure guess and check to get this equation...
-	let radius = Math.abs(origin.y - xyToCanvasCoords(projectAltAz(0,270, false)).y);
+	let origin = xyToCanvasCoords({x:0,y:-Math.tan((-Math.PI/180)*(view.phi-90))}); // believe it or not this was pure guess and check to get this equation...
+	let radius = Math.abs(origin.y - xyToCanvasCoords(projectAltAz(0,0, false)).y);
 
-	// let sky = ctx.createRadialGradient(origin.x,origin.y,1,origin.x, origin.y,radius);
-	// sky.addColorStop(0, "rgb(100,100,2550)");
-	// // sky.addColorStop(0.8, "rgb(100,100,2550)");
-	// sky.addColorStop(1, "skyblue");
-	sky = "rgba(0,0,0,0)"
+	let groundColor = "#002200";
+	let skyColor = AR_MODE ? "rgba(255, 255, 255, 0)" : "black";
 
-	if (origin.y > ctx.canvas.height/2) {
-		ctx.fillStyle = sky;
-		ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height)
-		drawCircle(origin.x, origin.y, radius, "black", true);
-	} else {
-		drawCircle(origin.x, origin.y, radius, sky, true);
+	if (view.phi < 0) { // origin is ground
+		ctx.fillStyle = skyColor;
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		drawCircle(origin.x, origin.y, radius, groundColor)
+	} else { // origin is sky
+		ctx.fillStyle = groundColor;
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = groundColor;
+		drawCircle(origin.x, origin.y, radius, skyColor)
 	}
-	drawCircle(origin.x, origin.y, radius, "grey", false);
 }
 
 function draw() {
@@ -78,55 +82,14 @@ function draw() {
 	ctx.canvas.width  = window.innerWidth;
 	ctx.canvas.height = window.innerHeight;
 
+	clickable = {};
 
 	drawHorizon();
-	// ctx.beginPath()
-	// ctx.fillStyle = "green";
-	// ctx.shadowBlur = 1;
-	// ctx.shadowColor = "red";
-	// ctx.arc(0,0,100,0,2*Math.PI);
-	// ctx.shadowBlur = 0;
-	// ctx.fill();
 
 	for (var objectID in objects) {
 		let object = objects[objectID];
 
-		let altaz;
-
-		if (object.position.type == 'equatorial') {
-			altaz = radecToaltaz(object.position.ra, object.position.dec, geolocation.lat, geolocation.lon, calcdate)
-			object.size = Math.min(3, 4/object.magnitude) * ((1.4*view.zoom)/ctx.canvas.height);
-
-		} else if (object.position.type == 'keplarian') {
-			let keplarianProperties = calculateKeplarianProperties(object, daysSinceJ2000(calcdate));
-			altaz = radecToaltaz(keplarianProperties.ra, keplarianProperties.dec, geolocation.lat, geolocation.lon, calcdate)
-			// console.log(object.name, keplarianProperties.size);
-			object.size = Math.max(10*arcsecondsToPixels(keplarianProperties.size, altaz.altitude, altaz.azimuth), 5);
-			object.magnitude = 0;
-		}
-
-		if (altaz.altitude < 0 || object.magnitude > getVisibleMagnitude()) continue;
-
-		// let size = 2;
-		let size = object.size;
-		let alpha = 3*size;
-
-		let color;
-		if (object.color) {color = rgb(...object.color, alpha);}
-		else {color = 'green';}
-
-
-		let canvasxy = xyToCanvasCoords(projectAltAz(altaz.altitude, altaz.azimuth));
-		const over = 30;
-		if (canvasxy.x > -over && canvasxy.y > -over && canvasxy.x < ctx.canvas.width+over && canvasxy.y < ctx.canvas.height+over) {
-			drawCircle(canvasxy.x, canvasxy.y, size/2, color)
-			// console.log(((size*ctx.canvas.height)/view.zoom) )
-			if (object.name && size > 2) {
-				ctx.fillStyle = "red";
-				ctx.font = Math.min(20, Math.max(12, size+5))+"px monospace";
-				ctx.fillText(object.name, canvasxy.x, canvasxy.y)
-			}
-		}
+		doObject(object, calcdate)
 	}
 	// let source = (view.zoom < 2500) ? data : bigdata;
 
@@ -139,11 +102,53 @@ function draw() {
 		ctx.fillText(label, canvasxytext.x, canvasxytext.y)
 	}
 
+	// drawSquares();
+	drawCursor();
+
 	requestAnimationFrame(draw)
 }
+async function doObject(object, calcdate) {
+	let altaz;
 
-function getVisibleMagnitude() {
-	return 100;
+	if (object.position.type == 'equatorial') {
+		altaz = radecToaltaz(object.position.ra, object.position.dec, geolocation.lat, geolocation.lon, calcdate)
+	} else if (object.position.type == 'keplarian') {
+		let keplarianProperties = calculateKeplarianProperties(object, daysSinceJ2000(calcdate));
+		altaz = radecToaltaz(keplarianProperties.ra, keplarianProperties.dec, geolocation.lat, geolocation.lon, calcdate)
+	}
+
+	object.size = 1;
+	object.altaz = altaz;
+
+	if (altaz.altitude < 0) return;
+	if (object.size < 0.5) return;
+
+	// let alpha = size;
+
+	let color;
+	if (object.color) {color = rgb(...object.color, 1);}
+	else {color = 'green';}
+
+	let xy = projectAltAz(altaz.altitude, altaz.azimuth);
+	let canvasxy = xyToCanvasCoords(xy);
+	object.canvasxy = canvasxy;
+
+	const over = 30;
+	if (canvasxy.x > -over && canvasxy.y > -over && canvasxy.x < ctx.canvas.width+over && canvasxy.y < ctx.canvas.height+over) {
+		drawCircle(canvasxy.x, canvasxy.y, object.size/2, color)
+
+		let square = getSquare(canvasxy.x, canvasxy.y)
+		// if (!(square in clickable))
+			// clickable[square] = []
+		if (!(square in clickable && clickable[square].size > object.size))
+			clickable[square] = (object);
+
+		if (object.name) {
+			ctx.fillStyle = "red";
+			ctx.font = "10px monospace";
+			ctx.fillText(object.name, canvasxy.x, canvasxy.y)
+		}
+	}
 }
 
 function useHash() {
@@ -152,10 +157,14 @@ function useHash() {
 	view.phi = parseFloat(hash[0]) || 0;
 	view.theta = parseFloat(hash[1]) || 0;
 	view.zoom = parseFloat(hash[2]) || 300;
+	if (hash[3] != 'null') {
+		highlighted = hash[3]
+		setTimeout(()=>showInfo(objects[highlighted]), 1000)
+	}
 	updateHash();
 }
 setInterval(updateHash,1000);
-function updateHash() {window.location.hash = `${Math.round(view.phi)}:${Math.round(view.theta)}:${Math.round(view.zoom)}`;}
+function updateHash() {window.location.hash = `${Math.round(view.phi)}:${Math.round(view.theta)}:${Math.round(view.zoom)}:${highlighted||null}`;}
 
 useHash()
 
