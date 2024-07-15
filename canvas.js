@@ -87,6 +87,7 @@ function getSquare(x, y) {
 }
 function drawSquares() {
 	ctx.strokeStyle = "green";
+	let oldAlpha = ctx.globalAlpha;
 	ctx.globalAlpha = 0.6;
 
 	let sizemult = Math.min(1, Math.max(1.5, 0.5 * view.zoom / ctx.canvas.height));
@@ -98,7 +99,7 @@ function drawSquares() {
 			ctx.strokeRect(x*gsx, y*gsy, gsx, gsy);
 		}
 	}
-	ctx.globalAlpha = 1;
+	ctx.globalAlpha = oldAlpha;
 }
 
 function handleClick(x, y) {
@@ -116,7 +117,7 @@ function handleClick(x, y) {
 }
 
 function drawCursor() {
-	if ((highlighted in objects)) {
+	if (highlighted in objects && objects[highlighted].canvasxy) {
 		let object = objects[highlighted];
 		ctx.lineWidth = 3;
 		drawCircle(object.canvasxy.x, object.canvasxy.y, 8 + object.size/2, "red", false);
@@ -159,8 +160,19 @@ function arcsecondsToPixels(arcseconds, alt, az) {
 	return pixels;
 }
 
-function flyTo(alt, az, zoom) {
-	view.zoom = zoom;
-	view.phi = alt;
-	view.theta = az;
+function flyTo(alt, az, zoom=false) {
+	if (!zoom) zoom = view.zoom;
+	let d_alt = alt - view.phi;
+	let d_az = az - view.theta;
+	let d_zoom = zoom - view.zoom;
+
+	let alt_okay = Math.abs(d_alt) < 1;
+	let az_okay = Math.abs(d_az) < 1;
+	let zoom_okay = Math.abs(d_zoom) < 1;
+
+	if (!alt_okay) view.phi  += Math.sign(d_alt);
+	if (!az_okay)  view.theta+= Math.sign(d_az);
+	if (!zoom_okay)view.zoom += Math.sign(d_zoom)
+
+	if (!(alt_okay && az_okay && zoom_okay)) setTimeout(()=>flyTo(alt, az, zoom), 10)
 }

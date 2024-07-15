@@ -58,7 +58,8 @@ function setupButtons() {
 		speedIndex -= 1;
 		if (speedIndex == 0) speedIndex = -1;
 		speedMult = Math.pow(speedIndex, 5);
-
+		if (speedIndex < 0 && playing) {back.style.color = "white";forward.style.color = "grey";}
+		else {forward.style.color = "grey";back.style.color = "grey";}
 		speedEl.innerHTML = speedMult + "&times;";
 	})
 
@@ -66,7 +67,8 @@ function setupButtons() {
 		speedIndex += 1;
 		if (speedIndex == 0) speedIndex = 1;
 		speedMult = Math.pow(speedIndex, 5);
-
+		if (speedIndex > 0 && playing) {forward.style.color = "white";back.style.color = "grey";}
+		else {forward.style.color = "grey";back.style.color = "grey";}
 		speedEl.innerHTML = speedMult + "&times;";
 	})
 

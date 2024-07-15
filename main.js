@@ -5,7 +5,7 @@ const CATALOG_URLS = [
 ]
 var catalogs = [];
 var objects = {};
-
+var sunAltitude = 90;
 let geolocation = JSON.parse(localStorage.getItem("geo")) || {lat: 0, lon: 0};
 
 function getLocation() {
@@ -37,36 +37,24 @@ async function loadData() {
 			objects[objectID] = catalogs[i].objects[objectID];
 		}
 	}
+	requestAnimationFrame(draw)
 }
 
-function drawStar(star, x, y) {
-	// let rgb = bvColor(star.color_index.value)
-	// let mag = star.magnitude.hipparcos;
-	// let size = Math.min(20/mag, 15);
-	// // if (view.zoom > 2000) size += 2
-	// // if (view.zoom > 4000) size += 2
-	// // if (view.zoom > 7000)
-	// 	size += view.zoom/500
-	// // console.log(size)
-	// ctx.font = size + "px monospace";
-	// let adjusted_rgb = adjustRGBtoMagnitude(rgb, mag);
-	// ctx.fillStyle = `rgb(${adjusted_rgb[0]}, ${adjusted_rgb[1]}, ${adjusted_rgb[2]})`
-	// ctx.fillText(".", x, y);
-
-	// clickable[[Math.floor(x),Math.floor(y)]] = star;
-
-	// if (0.9*mag < view.zoom/400 && star.hip in names) {
-	// 	ctx.font = Math.max(10, Math.min(size, 13)) + "px monospace";
-	// 	ctx.fillText("  "+names[star.hip], x, y);
-	// }
+function getAtmosphere() {
+	return {color: "black", starOpacity: 1}
+	if (sunAltitude < 6) return {color: ""}
+	let opacity = 0.1;
+	let color = "skyblue";
+	return {color: color, starOpacity: opacity}
 }
+
 
 function drawHorizon() {
 	let origin = xyToCanvasCoords({x:0,y:-Math.tan((-Math.PI/180)*(view.phi-90))}); // believe it or not this was pure guess and check to get this equation...
 	let radius = Math.abs(origin.y - xyToCanvasCoords(projectAltAz(0,0, false)).y);
 
 	let groundColor = AR_MODE ? "rgba(255, 255, 255, 0)" : "#002200";
-	let skyColor = AR_MODE ? "rgba(255, 255, 255, 0)" : "black";
+	let skyColor = AR_MODE ? "rgba(255, 255, 255, 0)" : getAtmosphere().color;
 
 	if (view.phi < 0) { // origin is ground
 		ctx.fillStyle = skyColor;
@@ -88,13 +76,20 @@ function draw() {
 
 	clickable = {};
 
-	drawHorizon();
+	let atmosphere = getAtmosphere();
+
+	drawHorizon(atmosphere);
+
+	ctx.globalAlpha = atmosphere.starOpacity;
 
 	for (var objectID in objects) {
 		let object = objects[objectID];
 
 		doObject(object, calcdate)
 	}
+
+	ctx.globalAlpha = 1;
+
 	// let source = (view.zoom < 2500) ? data : bigdata;
 
 	let labels = {"N":[0,0], "E":[0,90], "S":[0,180], "W":[0,270], "*":[90,0]}//, "point screen towards sky!":[-90,0]}
@@ -106,12 +101,13 @@ function draw() {
 		ctx.fillText(label, canvasxytext.x, canvasxytext.y)
 	}
 
+
 	// drawSquares();
 	drawCursor();
 
 	requestAnimationFrame(draw)
 }
-async function doObject(object, calcdate) {
+function doObject(object, calcdate) {
 	let altaz;
 
 	if (object.position.type == 'equatorial') {
@@ -124,18 +120,29 @@ async function doObject(object, calcdate) {
 	object.size = 1;
 	object.altaz = altaz;
 
-	if (altaz.altitude < 0) return;
-	if (object.size < 0.5) return;
+	if (object.id == 'sun') sunAltitude = altaz.altitude;
 
-	// let alpha = size;
+	if (altaz.altitude < 0) return;
+	if (object.magnitude > getVisibleMagnitude()) return;
+
+	object.size = 1.9 * Math.min(2, getVisibleMagnitude() / (object.magnitude * 3));
+
+	let alpha;
+	if (object.size < 1) {
+		alpha = object.size;
+		// console.log(alpha)
+	} else {
+		alpha = 1;
+	}
 
 	let color;
-	if (object.color) {color = rgb(...object.color, 1);}
+	if (object.color) {color = rgb(...object.color, alpha);}
 	else {color = 'green';}
 
 	let xy = projectAltAz(altaz.altitude, altaz.azimuth);
 	let canvasxy = xyToCanvasCoords(xy);
 	object.canvasxy = canvasxy;
+
 
 	const over = 30;
 	if (canvasxy.x > -over && canvasxy.y > -over && canvasxy.x < ctx.canvas.width+over && canvasxy.y < ctx.canvas.height+over) {
@@ -149,10 +156,17 @@ async function doObject(object, calcdate) {
 
 		if (object.name) {
 			ctx.fillStyle = "red";
-			ctx.font = "10px monospace";
+			ctx.font = (5+object.size) + "px monospace";
 			ctx.fillText(object.name, canvasxy.x, canvasxy.y)
 		}
+	} else if (highlighted == object.id) {
+
+		clearInfo();
 	}
+}
+
+function getVisibleMagnitude() {
+	return (6.5 * view.zoom/5000) + 4.5;
 }
 
 function useHash() {
@@ -170,7 +184,6 @@ function useHash() {
 setInterval(updateHash,1000);
 function updateHash() {window.location.hash = `${Math.round(view.phi)}:${Math.round(view.theta)}:${Math.round(view.zoom)}:${highlighted||null}`;}
 
-requestAnimationFrame(draw)
 useHash()
 loadData()
 getLocation()
