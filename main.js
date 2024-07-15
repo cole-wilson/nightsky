@@ -20,6 +20,7 @@ function getLocation() {
 
 async function loadData() {
 	for (var i=0;i<CATALOG_URLS.length;i++) {
+		displayLoad(CATALOG_URLS[i])
 		try {
 			catalogs.push(await (await fetch(CATALOG_URLS[i])).json())
 		} catch {

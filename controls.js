@@ -30,6 +30,8 @@ function formatRaDec(ra, dec) {
 	return ra + "/" + dec;
 }
 
+
+
 function setupButtons() {
 	let back = document.getElementById("time_back")
 	let playpause = document.getElementById("playpause")
@@ -103,7 +105,9 @@ function getFPS() {
 function displaySetting() {
 	left.innerHTML = geolocation.lat + ", " + geolocation.lon + " " + getFPS() + "fps<br>" + getTime().toLocaleString();
 }
-
+function displayLoad(a) {
+	left.innerHTML = "loading " + a + "...";
+}
 window.addEventListener("keydown", (e) => {
 	console.log(e.key)
 	switch (e.key) {
