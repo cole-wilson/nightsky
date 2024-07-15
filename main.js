@@ -1,7 +1,7 @@
 const CATALOG_URLS = [
 	"/data/hipparcos.json",
 	"/data/keplarian.json",
-	// "/data/messier.json"
+	"/data/messier.json"
 ]
 var catalogs = [];
 var objects = {};
@@ -66,7 +66,7 @@ function drawHorizon() {
 	let origin = xyToCanvasCoords({x:0,y:-Math.tan((-Math.PI/180)*(view.phi-90))}); // believe it or not this was pure guess and check to get this equation...
 	let radius = Math.abs(origin.y - xyToCanvasCoords(projectAltAz(0,0, false)).y);
 
-	let groundColor = "#002200";
+	let groundColor = AR_MODE ? "rgba(255, 255, 255, 0)" : "#002200";
 	let skyColor = AR_MODE ? "rgba(255, 255, 255, 0)" : "black";
 
 	if (view.phi < 0) { // origin is ground
