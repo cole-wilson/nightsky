@@ -27,7 +27,7 @@ function handleOrientation(event) {
 	var compass = event.alpha;
 	if (event.webkitCompassHeading)
 		compass = event.webkitCompassHeading;
-	compass = -(compass + 90);
+	compass = -(compass);
 
 	let vert;
 	var rot;
@@ -76,5 +76,5 @@ r = ${Math.round(rot)}
 		compass *= -1
 
 	view.theta = compass;
-	view.phi = (vert) - 180;
+	view.phi = (vert - 90) - 180;
 }
