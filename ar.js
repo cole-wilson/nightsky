@@ -76,5 +76,5 @@ r = ${Math.round(rot)}
 		compass *= -1
 
 	view.theta = compass;
-	view.phi = (vert - 90) - 180;
+	view.phi = (vert + 90) - 180;
 }
