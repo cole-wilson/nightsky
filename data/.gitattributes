@@ -1,0 +1,4 @@
+hipparcos.json filter=lfs diff=lfs merge=lfs -text
+keplarian.json filter=lfs diff=lfs merge=lfs -text
+labels.json filter=lfs diff=lfs merge=lfs -text
+messier.json filter=lfs diff=lfs merge=lfs -text
