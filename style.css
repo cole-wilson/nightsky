@@ -16,7 +16,7 @@ body {
 	pointer-events: none;
 }
 #debug {
-	display: none;
+	/* display: none; */
 	color: red;
 	font-size: 30px;
 	z-index: 100;
