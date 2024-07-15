@@ -27,7 +27,7 @@ function handleOrientation(event) {
 	var compass = event.alpha;
 	if (event.webkitCompassHeading)
 		compass = event.webkitCompassHeading;
-	compass = -(compass);
+	compass = (compass);
 
 	let vert;
 	var rot;
