@@ -20,7 +20,11 @@ function getLocation() {
 
 async function loadData() {
 	for (var i=0;i<CATALOG_URLS.length;i++) {
-		catalogs.push(await (await fetch(CATALOG_URLS[i])).json())
+		try {
+			catalogs.push(await (await fetch(CATALOG_URLS[i])).json())
+		} catch {
+			catalogs.push(await (await fetch("https://media.githubusercontent.com/media/cole-wilson/nightsky/main" + CATALOG_URLS[i])).json())
+		}
 	}
 	for (var i=0;i<catalogs.length;i++) {
 		for (var objectID in catalogs[i].objects) {
