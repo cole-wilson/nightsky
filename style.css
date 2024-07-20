@@ -60,6 +60,7 @@ canvas:active {
 }
 #info_right {
 	user-select: none;
+	z-index: 999;
 	position: fixed;
 	bottom: 0;
 	padding: 5px;
@@ -69,7 +70,7 @@ canvas:active {
 	/* pointer-events: none; */
 }
 #info_top_left {
-	user-select: none;
+	user-select: text;
 	position: fixed;
 	top: 0;
 	padding: 5px;
@@ -80,6 +81,7 @@ canvas:active {
 #info_top_right {
 	user-select: none;
 	text-align: right;
+	z-index: 999;
 	position: fixed;
 	top: 0;
 	padding: 5px;
