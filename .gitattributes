@@ -1,1 +1,10 @@
 data/out.json filter=lfs diff=lfs merge=lfs -text
+*.json filter=lfs diff=lfs merge=lfs -text
+data/hipparcos_7.json filter=lfs diff=lfs merge=lfs -text
+data/hipparcos_8.json filter=lfs diff=lfs merge=lfs -text
+data/hipparcos_9.json filter=lfs diff=lfs merge=lfs -text
+data/hipparcos_2.json filter=lfs diff=lfs merge=lfs -text
+data/hipparcos_3.json filter=lfs diff=lfs merge=lfs -text
+data/hipparcos_4.json filter=lfs diff=lfs merge=lfs -text
+data/hipparcos_5.json filter=lfs diff=lfs merge=lfs -text
+data/hipparcos_6.json filter=lfs diff=lfs merge=lfs -text

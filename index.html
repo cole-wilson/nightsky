@@ -19,7 +19,24 @@
 		</div>
 		<div id="info_left">loading...</div>
 		<div id="info_top_left"></div>
-		<div id="info_top_right"><button id="use_ar">AR</button></div>
+		<div id="info_top_right">
+			<button title="Augmented Reality" id="use_ar">AR</button>
+			<button title="Fullscreen" id="fullscreen">⛶</button>
+			<button title="Show Atmosphere" id="atmosphere">☁☼</button>
+			<button title="Display Azumithal Grid" id="grid">#</button>
+			<button title="Help" id="welcome">?</button>
+		</div>
+		<div id="modal">
+			<button onclick="closeModal()" id="close">&times;</button>
+			<div id="modal_content">
+				<h2>nightsky.cole.ws</h2>
+				<p>An interactive sky map created in pure javascript, without any dependencies.</p>
+				<p>Browse over 118K objects from the NGC, Messier, and Hipparcos catalogs by panning, zooming, and changing the time. Explore the sky with your mobile device using "AR" capabilities!</p>
+				<details><summary>(view controls)</summary>...</details>
+				<p style="font-size: 0.6em">created by <a href="https://cole.ws">cole wilson</a> in 2024</p>
+				<div style="text-align: center;"><button style="background: white;color:black;" onclick="sessionStorage.setItem('welcome',true);closeModal()">Let's Go!</button></div>
+			</div>
+		</div>
 
 		<canvas id="stars" width="600" height="600">map</canvas>
 

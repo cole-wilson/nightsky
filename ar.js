@@ -1,7 +1,10 @@
 var AR_MODE = false;
-document.getElementById("use_ar").addEventListener("click",()=>{
-	AR_MODE = true;
-	DeviceOrientationEvent.requestPermission()
+document.getElementById("use_ar").addEventListener("click",(e)=>{
+	AR_MODE = !AR_MODE;
+
+	if (AR_MODE) {
+		e.target.style.color = "white";
+		DeviceOrientationEvent.requestPermission()
             .then( response => {
 					let video = document.getElementById("camera");
 	navigator.mediaDevices
@@ -17,6 +20,10 @@ document.getElementById("use_ar").addEventListener("click",()=>{
                 window.addEventListener( "deviceorientation", handleOrientation)
             }
         })
+
+	} else {
+		e.target.style.color = "grey";
+	}
 });
 // window.addEventListener("deviceorientation", handleOrientation, true);
 

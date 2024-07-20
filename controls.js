@@ -2,6 +2,9 @@ let right = document.getElementById("info_right");
 let left = document.getElementById("info_left");
 let top_left = document.getElementById("info_top_left");
 let top_right = document.getElementById("info_top_right");
+let modal = document.getElementById("modal");
+let modalInner = document.getElementById("modal_content");
+let intro = modalInner.innerHTML;
 
 var fps = [];
 var speedMult = 1;
@@ -15,7 +18,7 @@ function showInfo(object) {
 	<h1>${object.name || object.id}</h1>
 	<b>Catalog:</b> <a target="_blank" href="${object.catalog.url}" title="${object.catalog.attribution}">${object.catalog.name}</a><br>
 	<b>ID:</b> ${object.id}<br>
-	<b>Alt/Az:</b> ${object.altaz.altitude}°/${object.altaz.azimuth}°<br>
+	<b>Alt/Az:</b> ${round(object.altaz.altitude, 2)}°/${round(object.altaz.azimuth, 2)}°<br>
 	`;
 	if (object.magnitude)
 		out += `<b>Magnitude:</b> `+object.magnitude+"<br>";
@@ -28,6 +31,9 @@ function clearInfo() {
 }
 function formatRaDec(ra, dec) {
 	return ra + "/" + dec;
+}
+function round(x, n) {
+	return Math.round(x * Math.pow(10, n)) / Math.pow(10, n)
 }
 
 
@@ -78,6 +84,34 @@ function setupButtons() {
 		forward.style.color = "grey";
 		back.style.color = "grey";
 	})
+
+	document.getElementById("fullscreen").onclick = (_) => {
+		document.documentElement.requestFullscreen()
+	}
+
+	document.getElementById("welcome").onclick = (_) => {
+		sessionStorage.removeItem("welcome")
+		showModal(intro)
+	}
+
+	document.getElementById("grid").onclick = (e) => {
+		view.grid = !view.grid;
+		if (view.grid) {
+			e.target.style.color = "white";
+		} else {
+			e.target.style.color = "grey";
+		}
+	}
+
+	document.getElementById("atmosphere").onclick = (e) => {
+		view.atmosphere = !view.atmosphere;
+		if (view.atmosphere) {
+			e.target.style.color = "white";
+		} else {
+			e.target.style.color = "grey";
+		}
+	}
+
 }
 
 function getTime() {
@@ -95,7 +129,11 @@ function getTime() {
 
 	lastCall = now;
 
-	return new Date(date);
+	let output = new Date(date);
+
+	view.time = output;
+
+	return output;
 }
 
 function setControls() {
@@ -107,25 +145,32 @@ function getFPS() {
 }
 
 function displaySetting() {
-	left.innerHTML = geolocation.lat + ", " + geolocation.lon + " " + getFPS() + "fps<br>" + getTime().toLocaleString();
+	if (!doneLoading) return;
+	left.innerHTML = view.geolocation.lat + ", " + view.geolocation.lon + " " + getFPS() + "fps<br>" + getTime().toLocaleString();
 }
 function displayLoad(a) {
-	left.innerHTML = "loading " + a + "...";
+	left.innerHTML = "loading<br>" + a + "...";
 }
 window.addEventListener("keydown", (e) => {
 	console.log(e.key)
 	switch (e.key) {
 		case 'Escape':
-			highlighted = null;
+			view.highlighted = null;
 			clearInfo();
 			break;
 		case ' ':
-			if (highlighted) {
-				let altaz = objects[highlighted].altaz;
+			if (view.highlighted) {
+				let altaz = objects[view.highlighted].altaz;
 				flyTo(altaz.altitude, altaz.azimuth, 2000)
 			}
 			break;
 	}
 })
-
+function closeModal() {
+	modal.style.display = "none";
+}
+function showModal(html) {
+	if (html) modalInner.innerHTML = html;
+	modal.style.display = "block";
+}
 setupButtons()

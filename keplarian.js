@@ -185,6 +185,7 @@ function calculateKeplarianProperties(object, d) {
 
 function sin(degrees) {return Math.sin((pi/180) * degrees);}
 function cos(degrees) {return Math.cos((pi/180) * degrees);}
+function tan(degrees) {return Math.tan((pi/180) * degrees);}
 function sqrt(x) {return Math.sqrt(x);}
 function atan2(b, a) {return (180/pi) * Math.atan2(b, a);}
 function asin(a) {return (180/pi) * Math.asin(a);}

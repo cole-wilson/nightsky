@@ -14,12 +14,10 @@ while headerlinecount < 2:
         headerlinecount += 1
     del data[0]
 
-output = {
-    "name": "Hipparcos, the New Reduction",
-    "url": "https://cdsarc.u-strasbg.fr/viz-bin/cat/I/311#/browse",
-    "attribution": "van Leeuwen, 2007",
-    "objects": {}
-}
+output = {}
+for i in range(2, 10):
+    output[i] = {}
+print(output)
 
 def bv_color(index):
     if (index >= 1.4): return [255, 165, 0];
@@ -41,7 +39,15 @@ for index, line in enumerate(data):
     # if float(hpmag) > 6.5:
     #     continue
 
-    output["objects"]["HIP"+hip] = {
+    if float(hpmag) < 2:
+        t = 2
+    elif float(hpmag) > 9:
+        t = 9
+    else:
+        t = math.floor(float(hpmag))
+    # print(f"{t}                      ")
+
+    output[t]["HIP"+hip] = {
         "id": "HIP"+hip,
         "type": "star",
         "position": {
@@ -54,9 +60,16 @@ for index, line in enumerate(data):
         "size": None,
         "name": None if hip not in names else names[hip]
     }
-
+# print(len(output[2].objects.keys()))
 # with open('../../data/out.json', 'w+') as outfile:
     # outfile.write(json.dumps(output))
 
-with open('../../data/hipparcos.json', 'w+') as outfile:
-    outfile.write(json.dumps(output, separators=(',', ':')))
+for k, v in output.items():
+    o = {
+    "name": "Hipparcos, the New Reduction" + f" (<{k} mag)",
+    "url": "https://cdsarc.u-strasbg.fr/viz-bin/cat/I/311#/browse",
+    "attribution": "van Leeuwen, 2007",
+    "objects": v
+    }
+    with open(f'../../data/hipparcos_{k}.json', 'w+') as outfile:
+        outfile.write(json.dumps(o, separators=(',', ':')))

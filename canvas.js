@@ -1,4 +1,3 @@
-let view = {zoom: window.innerHeight/2, phi: 0, theta: 0, rot: 0};
 var clickable = {};
 var cursor = {x:0,y:0}
 var lastdrag = {};
@@ -6,7 +5,6 @@ var lastPinchDist = 0;
 var dragging = false;
 var moved = false;
 var clickable = {};
-var highlighted = null;
 
 const GRID_STEPS_X = 10;
 const GRID_STEPS_Y = 10;
@@ -72,7 +70,7 @@ function mouseMove(x, y) {
 }
 
 document.getElementById("stars").addEventListener("mouseup", e => mouseUp(e.clientX, e.clientY))
-document.addEventListener("touchend", e => {if (e.touches.length == 1) mouseUp(e.touches[0].clientX, e.touches[0].clientY)})
+document.addEventListener("touchend", e => {if (e.changedTouches.length == 1) mouseUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY)})
 
 function mouseUp(x,y) {
 	dragging = false
@@ -103,24 +101,22 @@ function drawSquares() {
 }
 
 function handleClick(x, y) {
-	var star = false;
-
 	let square = getSquare(x, y);
 
-	console.log(square)
+	// console.log(square)
 
 	if (square in clickable) {
 		let object = clickable[square];
-		highlighted = object.id;
-		showInfo(object)
+		view.highlighted = object.id;
+		// showInfo(object)
 	}
 }
 
 function drawCursor() {
-	if (highlighted in objects && objects[highlighted].canvasxy) {
-		let object = objects[highlighted];
-		ctx.lineWidth = 3;
-		drawCircle(object.canvasxy.x, object.canvasxy.y, 8 + object.size/2, "red", false);
+	if (view.highlighted in objects && objects[view.highlighted].canvasxy) {
+		let object = objects[view.highlighted];
+		ctx.lineWidth = 2;
+		drawCircle(object.canvasxy.x, object.canvasxy.y, 8 + object.pixelSize/2, "red", false);
 		ctx.lineWidth = 1;
 
 	}
@@ -165,14 +161,15 @@ function flyTo(alt, az, zoom=false) {
 	let d_alt = alt - view.phi;
 	let d_az = az - view.theta;
 	let d_zoom = zoom - view.zoom;
+	console.log(d_az, d_alt, d_zoom)
 
 	let alt_okay = Math.abs(d_alt) < 1;
 	let az_okay = Math.abs(d_az) < 1;
 	let zoom_okay = Math.abs(d_zoom) < 1;
 
-	if (!alt_okay) view.phi  += Math.sign(d_alt);
-	if (!az_okay)  view.theta+= Math.sign(d_az);
-	if (!zoom_okay)view.zoom += Math.sign(d_zoom)
+	if (!alt_okay) view.phi  += d_alt / 10;
+	if (!az_okay)  view.theta+= d_az / 10;
+	if (!zoom_okay)view.zoom += d_zoom / 10;
 
 	if (!(alt_okay && az_okay && zoom_okay)) setTimeout(()=>flyTo(alt, az, zoom), 10)
 }

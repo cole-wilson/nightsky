@@ -5,6 +5,8 @@ body {
 	font-family: monospace;
 	overflow: hidden;
 }
+* {font-family:monospace}
+* a {color: inherit;}
 #camera {
 	position: fixed;
 	top: 0;
@@ -47,6 +49,7 @@ canvas:active {
 }
 
 #info_left {
+	user-select: none;
 	color: grey;
 	position: fixed;
 	bottom: 0;
@@ -56,6 +59,7 @@ canvas:active {
 	pointer-events: none;
 }
 #info_right {
+	user-select: none;
 	position: fixed;
 	bottom: 0;
 	padding: 5px;
@@ -65,6 +69,7 @@ canvas:active {
 	/* pointer-events: none; */
 }
 #info_top_left {
+	user-select: none;
 	position: fixed;
 	top: 0;
 	padding: 5px;
@@ -73,6 +78,8 @@ canvas:active {
 	color: white;
 }
 #info_top_right {
+	user-select: none;
+	text-align: right;
 	position: fixed;
 	top: 0;
 	padding: 5px;
@@ -84,8 +91,38 @@ canvas:active {
 	color: white;
 }
 button {
+	font-family: monospace;
 	background: none;
 	border: none;
 	color: grey;
 	cursor: pointer;
+}
+#modal {
+	display: none;
+	position: fixed;
+	top: 25vh;
+	left: 25vw;
+	width: 50vw;
+	max-height: 50vh;
+	padding: 30px;
+	box-sizing: border-box;
+	overflow: auto;
+	background: black;
+	border: 1px solid white;
+}
+#modal_content {user-select: text}
+#close {
+	position: absolute;
+	color: red;
+	right: 3px;
+	top: 3px;
+}
+
+@media (max-width: 500px) {
+	#modal {
+		top: 5vh;
+		left: 5vw;
+		width: 90vw;
+		max-height: 90vh;
+	}
 }
