@@ -48,7 +48,7 @@ async function loadData() {
 		try {
 			catalog = await (await fetch(CATALOG_URLS[i])).json()
 		} catch {
-			catalog = await (await fetch("https://media.githubusercontent.com/media/cole-wilson/nightsky/main" + CATALOG_URLS[i])).json()
+			catalog = await (await fetch("https://media.githubusercontent.com/media/cole-wilson/sky/main" + CATALOG_URLS[i])).json()
 		}
 		for (var objectID in catalog.objects) {
 			catalog.objects[objectID].catalog = {
