@@ -293,7 +293,7 @@ function updateHash() {
 }
 
 function wrap(tryagain=false) {
-	if (tryagain) oopsies += 1;
+	if (tryagain === 'yes') oopsies += 1;
 	try {draw()}
 	catch(e) {
 		if (oopsies > 3) {location.hash = ""; location.reload();}
@@ -305,7 +305,7 @@ function wrap(tryagain=false) {
 <textarea style="width: 100%;min-height:100px;" readonly>${e.stack}</textarea>
 </details>
 <br>
-<a href="#" style="color:red;" onclick="wrap(true)">Try Again...</a>
+<a href="#" style="color:red;" onclick="wrap('yes')">Try Again...</a>
 `)
 	}
 }
