@@ -1,5 +1,7 @@
 var AR_MODE = false;
-document.getElementById("use_ar").addEventListener("click",(e)=>{
+
+let arFunc = ()=>{
+	let e = {target:document.getElementById("use_ar")};
 	AR_MODE = !AR_MODE;
 
 	if (AR_MODE) {
@@ -24,7 +26,8 @@ document.getElementById("use_ar").addEventListener("click",(e)=>{
 	} else {
 		e.target.style.color = "grey";
 	}
-});
+}
+document.getElementById("use_ar").addEventListener("click",arFunc);
 // window.addEventListener("deviceorientation", handleOrientation, true);
 
 

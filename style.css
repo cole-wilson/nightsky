@@ -71,6 +71,7 @@ canvas:active {
 }
 #info_top_left {
 	user-select: text;
+	pointer-events: none;
 	position: fixed;
 	top: 0;
 	padding: 5px;
@@ -127,4 +128,21 @@ button {
 		width: 90vw;
 		max-height: 90vh;
 	}
+}
+
+#name {
+	position: fixed;
+	/* left: -2px; */
+	/* top: 65vh; */
+	top: 0;
+	left: 0;
+	width: 100vw;
+	text-align: center;
+	/* transform: rotate(90deg); */
+	transform-origin: bottom left;
+	color: grey;
+	font-size: 10px;
+}
+#name a {
+	text-decoration: none;
 }

@@ -201,9 +201,11 @@ function draw() {
 		}
 	}
 
-	if (view.highlighted in objects) showInfo(objects[view.highlighted])
+	if (view.highlighted in objects) {
+		drawCursor();
+		showInfo(objects[view.highlighted])
+	}
 	// drawSquares();
-	drawCursor();
 
 	requestAnimationFrame(wrap)
 }

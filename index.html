@@ -3,7 +3,21 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-		<title>sky.cole.ws</title>
+		<title>sky</title>
+		<link rel="icon" type="image/png" href="/favicon.png">
+		<meta name="title" content="sky" />
+		<meta name="description" content="An interactive sky map created in pure javascript, without any dependencies. Browse over 118K objects from the NGC, Messier, and Hipparcos catalogs by panning, zooming, and changing the time. Explore the sky with your mobile device using 'AR' capabilities!"/>
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://sky.cole.ws/" />
+		<meta property="og:title" content="sky" />
+		<meta property="og:description" content="An interactive sky map created in pure javascript, without any dependencies. Browse over 118K objects from the NGC, Messier, and Hipparcos catalogs by panning, zooming, and changing the time. Explore the sky with your mobile device using 'AR' capabilities!"/>
+		<meta property="og:image" content="https://metatags.io/images/meta-tags.png" />
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://sky.cole.ws/" />
+		<meta property="twitter:title" content="sky" />
+		<meta property="twitter:description" content="An interactive sky map created in pure javascript, without any dependencies. Browse over 118K objects from the NGC, Messier, and Hipparcos catalogs by panning, zooming, and changing the time. Explore the sky with your mobile device using 'AR' capabilities!"/>
+		<meta property="twitter:image" content="https://metatags.io/images/meta-tags.png" />
+		<!-- Meta Tags Generated with https://metatags.io -->
 		<link rel="stylesheet" href="/style.css">
 	</head>
 	<body>
@@ -12,19 +26,19 @@
 		<div id="filter"></div>
 		<div id="info_right">
 			<span   title="Speed" id="speed">1&times;</span>
-			<button title="Speed Backward" id="time_back"></button>
-			<button title="Play/Pause" id="playpause"></button>
-			<button title="Speed Forward" id="time_forward"></button>
-			<button title="Now" id="time_now"></button>
+			<button title="Speed Backward (←)" id="time_back"></button>
+			<button title="Play/Pause (P)" id="playpause"></button>
+			<button title="Speed Forward (→)" id="time_forward"></button>
+			<button title="Now (N)" id="time_now"></button>
 		</div>
 		<div id="info_left">loading...</div>
 		<div id="info_top_left"></div>
 		<div id="info_top_right">
-			<button title="Augmented Reality" id="use_ar">AR</button>
-			<button title="Fullscreen" id="fullscreen">⛶</button>
-			<button title="Show Atmosphere" id="atmosphere">☁☼</button>
-			<button title="Display Azumithal Grid" id="grid">#</button>
-			<button title="Help" id="welcome">?</button>
+			<button title="Augmented Reality (R)" id="use_ar">AR</button>
+			<button title="Fullscreen (F)" id="fullscreen">⛶</button>
+			<button title="Show Atmosphere (A)" id="atmosphere">☁☼</button>
+			<button title="Display Azumithal Grid (Z)" id="grid">#</button>
+			<button title="Help (?)" id="welcome">?</button>
 		</div>
 		<div id="modal">
 			<button onclick="closeModal()" id="close">&times;</button>
@@ -32,13 +46,40 @@
 				<h2>sky.cole.ws</h2>
 				<p>An interactive sky map created in pure javascript, without any dependencies.</p>
 				<p>Browse over 118K objects from the NGC, Messier, and Hipparcos catalogs by panning, zooming, and changing the time. Explore the sky with your mobile device using "AR" capabilities!</p>
-				<details><summary>(view controls)</summary>...</details>
+				<details><summary>(view controls)</summary>
+					<div style="border-left: 1px solid white;padding-left:10px;">
+						<br>
+						<u>Playback</u><br>
+						⏮︎ : Decrease or reverse playback speed (key: ←)<br>
+						⏸︎⏵︎: Play/Pause playback (key: P)<br>
+						⏭︎ : Increase or reverse playback speed (key: →)<br>
+						⏺︎ : Set time/speed to present local time (key: N)<br>
+						<br>
+						<u>Display</u><br>
+						AR: Toggle AR mode on supported devices (key: R)<br>
+						⛶ : Fullscreen mode (key: F)<br>
+						☁☼: Toggle atmosphere display (key: A)<br>
+						# : Toggle Azumithal Grid (key: Z)<br>
+						<br>
+						<u>Other</u><br>
+						? : Show this welcome/help screen again (key: ?)<br>
+						Space Key: Center selected object on screen<br>
+						Esc Key: Clear object selection<br>
+						<br>
+						<u>URL</u><br>
+						The URL hash (after the #) contains the following info that is used to share a display view. It's all pretty
+						easy to understand, but the 'phi' value is altitude in degrees, and the 'theta' value is azumith in degrees.
+					</div>
+				</details>
 				<p style="font-size: 0.6em">created by <a href="https://cole.ws">cole wilson</a> in 2024</p>
 				<div style="text-align: center;"><button style="background: white;color:black;" onclick="sessionStorage.setItem('welcome',true);closeModal()">Let's Go!</button></div>
 			</div>
 		</div>
 
-		<canvas id="stars" width="600" height="600">map</canvas>
+		<canvas id="stars" width="600" height="600">the star map canvas</canvas>
+		<noscript>you must enable javascript to use this site...</noscript>
+
+		<div id="name">a <a href="https://cole.ws">cole wilson</a> project</div>
 
 		<script src="/data/keplarian.js"></script>
 
